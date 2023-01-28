@@ -1,31 +1,26 @@
-#include "database.h"
+#include "database.cpp"
 #include "models.cpp"
+#include <iostream>
+
 
 #define random(A, B) (A + rand() % (B-A+1))
 
-
-Database<AppearanceProp> load_props(string fp) {
-    Database<AppearanceProp> result (fp);
-    result.load();
-    return result;
-}
-
-
-template <class T>
-T choice(vector<T> vec) {
-    return vec[random(0, vec.length())];
-};
-
-
-class PersonAppearance {
-    
-};
+using namespace std;
 
 
 int main() {
-    auto clothes = load_props("clothes.csv").get();
-    auto shoes = load_props("shoes.csv").get();
-    auto hairstyle = load_props("hairstyle.csv").get();
+    Database<AppearanceProperty> db ("/Users/mihailsapovalov/Desktop/C++/ta-exam-proj/db.csv");
+    db.load();
 
-    
+    AppearanceProperty query;
+    query.gender = StringField("female", QueryMode::NOT_EQUAL);
+    query.id = IntField(1, QueryMode::EQUAL);
+
+    auto res = db.find_one(query);
+
+    if (res == nullptr) {
+        cout << "User nof found";
+    } else {
+        cout << *res->name.value;
+    }
 };

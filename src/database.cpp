@@ -38,7 +38,22 @@ string join_csv_line(vector<string> data)
 }
 
 
-BaseModel::BaseModel() {}
+void BaseModel::parse(const vector<string> data, int &__pos)
+{
+    this->id = IntField(data[__pos++]);
+}
+
+bool BaseModel::match_query(const shared_ptr<BaseModel> query)
+{
+    return this->id.match_query(query->id);
+}
+
+vector<string> BaseModel::dump()
+{
+    vector<string> result;
+    result.push_back(this->id.dump());
+    return result;
+}
 
 
 template <class T>
@@ -46,6 +61,51 @@ Database<T>::Database(string filepath)
 {
     this->filepath = filepath;
     this->is_loaded = false;
+}
+
+
+template <class T>
+shared_ptr<T> Database<T>::find_one(shared_ptr<T> query)
+{
+    vector< shared_ptr<T> > result = find(query);
+    if (!result.size()) {
+        return nullptr;
+    } else {
+        return result[0];
+    }
+}
+
+
+template <class T>
+shared_ptr<T> Database<T>::find_one(T query)
+{
+    shared_ptr<T> prepared = (shared_ptr<T>) new T (query);
+    return this->find_one(prepared);
+}
+
+template <class T>
+vector< shared_ptr<T> > Database<T>::find(shared_ptr<T> query, bool one)
+{
+    if (!this->is_loaded) throw runtime_error("Find request to the unloaded database");
+
+    vector<shared_ptr<T> > result;
+
+    for (shared_ptr<T> current : data) {
+
+        if (current->match_query(query)) {
+            result.push_back(current);
+
+            if (one) return result;
+        }
+    }
+    return result;
+}
+
+template <class T>
+vector<shared_ptr<T> > Database<T>::find(T query, bool one)
+{
+    shared_ptr<T> prepared = (shared_ptr<T>) new T (query);
+    return this->find(prepared, one);
 }
 
 
