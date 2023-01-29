@@ -86,8 +86,6 @@ shared_ptr<T> Database<T>::find_one(T query)
 template <class T>
 vector< shared_ptr<T> > Database<T>::find(shared_ptr<T> query, bool one)
 {
-    if (!this->is_loaded) throw runtime_error("Find request to the unloaded database");
-
     vector<shared_ptr<T> > result;
 
     for (shared_ptr<T> current : data) {
@@ -177,4 +175,11 @@ template <class T>
 vector<shared_ptr<T> > Database<T>::get()
 {
     return this->data;
+}
+
+
+template <class T>
+void Database<T>::set(vector<shared_ptr<T> > data)
+{
+    this->data = data;
 }

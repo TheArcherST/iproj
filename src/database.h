@@ -199,4 +199,5 @@ public:
     void save();
 
     vector<shared_ptr<T> > get();
+    void set(vector<shared_ptr<T> >  vec);
 };
